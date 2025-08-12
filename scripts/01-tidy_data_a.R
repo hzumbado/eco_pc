@@ -1,5 +1,5 @@
 # Ecologia de poblaciones
-# Codigo 01b Lectura de datos ordenadas
+# Codigo 01a Lectura de datos ordenadas
 # Profesor Hector Zumbado Ulate
 
 # setup ----------------------------------------------------------
@@ -10,7 +10,8 @@ library(tidyverse)
 
 # data -------------------------------------------------------------
 
-read_csv('data/raw/messy_weather.csv')
+read_csv('data/raw/messy_weather.csv') %>%
+  view()
 
 read_csv('data/raw/messy_weather.csv') %>%
   lobstr::ref()
@@ -91,6 +92,8 @@ weather_variable_fix <-
     values_from = 'value') %>%
   rename(precipitation = precip)
 
+weather_variable_fix
+
 # create date -------------------------------------------------------------
 
 weather_variable_fix %>%
@@ -127,6 +130,8 @@ weather_date_fix <-
 weather_date_fix
 
 # fix temp ----------------------------------------------------------------
+names(weather_date_fix)
+N
 
 weather_date_fix %>%
   select(temperature_min_max)

@@ -1,5 +1,5 @@
 # Ecologia de poblaciones
-# Codigo 01b Lectura de datos ordenadas
+# Codigo 01b. Lectura de datos ordenadas
 # Profesor Hector Zumbado Ulate
 
 # setup ----------------------------------------------------------
