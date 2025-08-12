@@ -1,5 +1,5 @@
 # Ecologia de poblaciones
-# Codigo 01a Lectura de datos pajaros reparado
+# Lectura de datos pajaros reparado
 # Profesor Hector Zumbado Ulate
 
 # setup ----------------------------------------------------------
@@ -36,7 +36,8 @@ pajaritos_df <-
     date = as_date(date),
     across(
       c(campus, site, sex:substrate),
-      ~.x %>% as_factor()))
+      ~.x %>%
+        as_factor()))
 
 pajaritos_df %>%
   write_csv('data/processed/birds_dataframe.csv')

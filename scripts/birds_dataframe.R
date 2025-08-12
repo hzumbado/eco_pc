@@ -1,5 +1,5 @@
 # Ecologia de poblaciones
-# Codigo 01a Lectura de datos pajaroa
+# Lectura de datos pajaros
 # Profesor Hector Zumbado Ulate
 
 # setup ----------------------------------------------------------
@@ -31,23 +31,25 @@ pajaritos_df <-
     human_presence = "Presencia humana")
 
 pajaritos_df %>%
-  mutate(campus = 'omar_dengo', .before = site) %>%
+  mutate(
+    campus = 'omar_dengo',
+    .before = site) %>%
   mutate(
     year = 2025,
     month = 08,
     day = 05) %>%
   unite(
-    col = 'date', #new column
+    col = 'date',
     year:day,
     sep = '-') %>%
   mutate(
     date = as_date(date),
     across(
-      c(campus, site, sex:substrate),
-      ~.x %>% as_factor()))
+      c(campus:site, sex:substrate),
+      ~.x %>%
+        as_factor()))
 
 pajaritos_df <-
-
   read_csv('data/raw/pajaritos.csv') %>%
   select(
     site = 'Punto de muestreo',
