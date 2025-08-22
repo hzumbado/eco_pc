@@ -94,6 +94,7 @@ tm_shape(world) +
   tm_polygons(fill = 'continent')
 
 tm_shape(rivers_europe_sf) +
+  tm_grid(lines = FALSE) +
   tm_lines(col = 'blue')
 
 st_crs(world_sf)

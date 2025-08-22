@@ -44,7 +44,7 @@ angola_ungulates_taxonomy_fix <-
     into = c('class', 'order', 'family'),
     sep = '-')
 
-# haga una lista con 2 elementos llamados 'taxonomy' y 'observations'. Para observations seleccione date, user_login, species). Para el objeto taxonomy utilice species, order, family, common_name. Como el dato Class es el mismo para ambos ordenes (Mammalia) es innecesario ponerlo.
+# haga una lista con 2 elementos llamados 'taxonomy' y 'observations'. Para el objeto taxonomy utilice las columnas species, order, family, common_name. Para el objeto observations seleccione date, user_login, species).  Como el dato Class es el mismo para ambos ordenes (Mammalia) es innecesario ponerlo.
 
 taxonomy <-
   select(

@@ -7,12 +7,9 @@
 rm(list = ls())
 
 library(terra)
-library(geodata)
-library(rnaturalearth)
-library(tidyverse)
 library(sf)
-library(car)
-library(mapmisc)
+library(tmap)
+library(tidyverse)
 
 # data --------------------------------------------------------------------
 
@@ -25,7 +22,7 @@ species_coords <-
 
 list.files(
   'shapefiles',
-  pattern = ('cit|lak|nam|riv|world'),
+  pattern = ('cit|lak|nam|riv'),
   full.names = TRUE) %>%
   map(~.x %>%
         read_sf() %>%
@@ -35,38 +32,131 @@ list.files(
     'rivers_europe',
     'lakes',
     'namibia_adm',
-    'rivers',
-    'world') %>%
+    'rivers') %>%
   list2env(.GlobalEnv)
+
+# rasters -----------------------------------------------------------------
+
+list.files(
+  'rasters',
+  pattern = '.tif',
+  full.names = TRUE) %>%
+  map(~.x %>%
+        rast()) %>%
+  set_names(
+    'namibia_elevation',
+    'population',
+    'elevation',
+    'bathymetry') %>%
+  list2env(.GlobalEnv)
+
+
+# colores ----------------------------------------------------------------
+
+cols4all::c4a_gui()
 
 # Africa ------------------------------------------------------------------
 
-species_coords
-
-
-world %>%
+World %>%
   tm_shape() +
-  tm_borders() +
+  tm_polygons(
+    fill = 'continent',
+    fill.scale =
+      tm_scale_categorical(
+        values = "matplotlib.seismic"),
+    fill.legend =
+      tm_legend(
+        title = "Continent",
+        orientation = "portrait",
+        frame = TRUE))
+
+World %>%
+  tm_shape(crs = "+proj=robin") +
+  tm_polygons(
+    fill = "HPI",
+    fill.scale =
+      tm_scale_continuous(
+        values = "matplotlib.rd_yl_bu"),
+    fill.legend =
+      tm_legend(
+        title = "Happy Planet Index",
+        orientation = "landscape",
+        frame = FALSE))
+
+# mapa Africa + especies
+
+World %>%
+  filter(continent == 'Africa') %>%
+  tm_shape() +
+  tm_polygons(fill = 'wheat') +
+  tm_crs("auto") +
   tm_shape(species_coords) +
   tm_symbols(
     fill = 'species',
-    size = 0.3,
-    col = 'black',
-    fill.legend = tm_legend('Species'),
     fill.scale =
-      tm_scale_categorical(values = "brewer.set2"))
+      tm_scale_categorical(
+        values = "brewer.set2"),
+    size = 0.5,
+    col = 'black',
+    fill.legend = tm_legend('Species'))
 
+# mapa Namibia
 
-tm_shape(world %>%
-           filter(COUNTRY == 'Namibia')) +
-  tm_borders()
+namibia <-
+  World %>%
+  filter(name == 'Namibia')
+
+# mapa africa + Namibia
+
+World %>%
+  filter(continent == 'Africa') %>%
+  tm_shape() +
+  tm_graticules(lines = FALSE) +
+  tm_polygons(fill = 'wheat') +
+  tm_crs("auto") +
+  tm_shape(namibia) +
+  tm_polygons('green')
+
+# mapa africa + Namibia (mejorado)
+
+World %>%
+  tm_shape() +
+  tm_graticules(lines = FALSE) +
+  tm_polygons(fill = 'wheat') +
+  tm_crs("auto") +
+  tm_shape(
+    World %>%
+      filter(continent == 'Africa'),
+    is.main = TRUE) +
+  tm_polygons('wheat') +
+  tm_shape(namibia) +
+  tm_polygons('green')
+
+# mapa namibia + especies
+
+tm_shape(namibia) +
+  tm_graticules(lines = FALSE) +
+  tm_borders() +
+  tm_shape(namibia_adm) +
+  tm_borders() +
+  tm_shape(
+    species_coords %>%
+      st_filter(namibia)) +
+  tm_symbols(
+    fill = 'species',
+    fill.scale =
+      tm_scale_categorical(
+        values = "brewer.set2"),
+    size = 0.6,
+    col = 'black',
+    fill.legend =
+      tm_legend('Species'))
 
 # cities ------------------------------------------------------------------
 
-
 # plot with colours defined by column values:
 
-world %>%
+World %>%
   tm_shape() +
   tm_borders() +
   tm_shape(cities) +
@@ -74,16 +164,24 @@ world %>%
     fill = 'CAPITAL',
     size = 0.4,
     col = 'black',
-    fill.legend = tm_legend('Capital'),
+    fill.legend =
+      tm_legend('Capital'),
     fill.scale =
-      tm_scale_categorical(values = "brewer.set2"))
-
-
-
+      tm_scale_categorical(
+        values = "brewer.set2"))
 
 # countries ---------------------------------------------------------------
 
+startswithB <-
+  World %>%
+  filter(
+    str_detect(name, '^B'))
 
+World%>%
+  tm_shape() +
+  tm_polygons('gray70') +
+  tm_shape(startswithB) +
+  tm_polygons('wheat')
 
 # rivers------------------------------------------------------------------
 
@@ -92,7 +190,7 @@ world %>%
   tm_borders() +
   tm_shape(rivers) +
   tm_lines(
-    col = 'blue')
+    col = 'darkblue')
 
 world %>%
   tm_shape() +
@@ -101,7 +199,6 @@ world %>%
   tm_lines(
     col = 'SYSTEM')
 
-
 # lakes -------------------------------------------------------------------
 
 world %>%
@@ -109,7 +206,17 @@ world %>%
   tm_borders() +
   tm_shape(lakes) +
   tm_polygons(
-    fill = 'blue')
+    fill = 'lightblue')
+
+World %>%
+  # distinct(continent) %>%
+  filter(continent == 'North America') %>%
+  tm_shape() +
+  tm_borders() +
+  tm_shape(lakes) +
+  tm_polygons(
+    fill = 'lightblue')
+
 
 # Namibia -----------------------------------------------------------------
 
@@ -117,8 +224,10 @@ tm_shape(namibia_adm) +
   tm_polygons(
     fill = 'wheat')
 
-
-sort(unique(namibia_adm$NAME_2))
+namibia_adm %>%
+  distinct(NAME_2) %>%
+  pull() %>%
+  sort()
 
 nam_subset <-
   namibia_adm %>%
@@ -139,121 +248,104 @@ tm_shape(namibia_adm) +
     lwd = 3) +
   tm_shape(nam_subset) +
   tm_borders(
-    lwd = 1, col = 'white')
-
-
+    lwd = 1,
+    col = 'white')
 
 # all layers map ----------------------------------------------------------
 
-plot(
-  countries,
-  "region",
-  main = "Map of the world",
-  col = terrain.colors(6))
-
-plot(
-  cities,
-  cex = 0.2,
-  col = "darkred",
-  add = TRUE)
-
-plot(
-  rivers,
-  col = "blue",
-  add = TRUE)
-
-plot(
-  lakes,
-  col = "lightblue",
-  border = NA,
-  add = TRUE)
-
-plot(
-  species_points,
-  col = "darkgreen",
-  pch = 4,
-  cex = 0.2,
-  add = TRUE)
+World %>%
+  tm_shape() +
+  tm_polygons(
+    fill = 'continent',
+    fill.scale =
+      tm_scale_categorical(
+        values = "brewer.set2"),
+    fill.legend =
+      tm_legend(
+        title = "Continent",
+        orientation = "landscape",
+        frame = FALSE)) +
+  tm_shape(cities) +
+  tm_symbols(
+    fill = 'CAPITAL',
+    size = 0.3,
+    col = 'black',
+    fill.legend =
+      tm_legend('Capital'),
+    fill.scale =
+      tm_scale_categorical(
+        values = c('darkgreen', 'orange'))) +
+  tm_shape(lakes) +
+  tm_polygons(
+    fill = 'lightblue') +
+  tm_shape(rivers) +
+  tm_lines(
+    col = 'darkblue')
 
 # specific ranges ---------------------------------------------------------
 
-plot(
-  countries,
-  border = "grey")
+extent <-
+  st_bbox( #crear extent con paquete sf
+    c(
+      xmin = -86,
+      xmax = -82.5,
+      ymin = 7.5,
+      ymax = 11.5),
+    crs = 4326) %>%
+  st_as_sfc() #transforma extent en poligono con paquetes
 
-my_window <-
-  ext(-20, 60, -40, 40)  # xmin, xmax, ymin, ymax
+cr_map <-
+  World %>%
+  tm_shape(bb = extent) +
+  tm_graticules(lines = F) +
+  tm_polygons(fill = '#dadada')
 
-plot(
-  countries,
-  border = "grey",
-  ext = my_window)
+World %>%
+  tm_shape(bb = extent) +
+  tm_borders()
 
-plot(
-  rivers,
-  col = "blue",
-  add = TRUE)
+extent <-
+  st_bbox( #crear extent con paquete sf
+    c(
+      xmin = -20,
+      xmax = 60,
+      ymin = -40,
+      ymax = 40),
+    crs = 4326) %>%
+  st_as_sfc() #transforma extent en poligono con paquetes
 
-plot(
-  cities,
-  col = "darkred",
-  add = TRUE)
-
-plot(
-  species_points,
-  col = "darkgreen",
-  pch = 4,
-  add = TRUE)
+World %>%
+  tm_shape(bb = extent) +
+  tm_borders() +
+  tm_shape(cities) +
+  tm_symbols(
+    fill = 'CAPITAL',
+    size = 0.3,
+    col = 'black',
+    fill.legend =
+      tm_legend('Capital'),
+    fill.scale =
+      tm_scale_categorical(
+        values = c('darkgreen', 'orange'))) +
+  tm_shape(lakes) +
+  tm_polygons(
+    fill = 'lightblue') +
+  tm_shape(rivers) +
+  tm_lines(
+    col = 'darkblue')
 
 # labels ------------------------------------------------------------------
 
-plot(
-  countries,
-  border = "darkgrey",
-  ext = my_window)
-
-text(
-  x = countries,
-  "name",
-  cex = 0.7)
-
-countries_centroids <-
-  countries |>
-  centroids() |>
-  crds()
-
-plot(
-  countries,
-  border = "darkgrey",
-  ext = my_window)
-
-set.seed(1)
-
-label_coords <-
-  pointLabel(
-  x = countries_centroids,
-  labels = countries$name,
-  cex = 0.7)
-
-label_coords$y[which(countries$name == "South Africa")]
-
-label_coords$y[which(countries$name == "South Africa")] <- -32
-
-#map again
-
-plot(
-  countries,
-  border = "darkgrey",
-  ext = my_window)
-
-text(
-  label_coords$x,
-  label_coords$y,
-  countries$name,
-  col = "blue",
-  cex = 0.7)
-
+World %>%
+  tm_shape(bb = extent) +
+  tm_text(
+    'name',
+    size = 0.75) +
+  tm_borders()
 # plots -------------------------------------------------------------------
+
+bathy %>%
+tm
 
 plot(bathy)
 plot(ncdf$pr)
