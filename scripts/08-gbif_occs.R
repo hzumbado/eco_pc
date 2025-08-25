@@ -1,5 +1,6 @@
-# Hector Zumbado
-# descarga de datos gbif
+# Ecologia de poblaciones
+# Profesor Hector Zumbado Ulate
+# descarga de datos gbif. Una especie
 
 # setup -------------------------------------------------------------------
 
@@ -10,10 +11,11 @@ library(tidyverse)
 
 # data --------------------------------------------------------------------
 
-my_species <- 'Isthmohyla_pseudopuma'
+species <- 'Cephalopterus glabricollis'
+my_species <- 'Cephalopterus_glabricollis'
 
 key <-
-  name_backbone(my_species) %>%
+  name_backbone(species) %>%
   pull(usageKey)
 
 key
@@ -21,10 +23,7 @@ key
 gbif_download <-
   occ_download(
     pred('taxonKey', key),
-    format = 'SIMPLE_CSV',
-    user = 'hzumbado',
-    pwd = 'Hugozum1980',
-    email = 'zumbadohector@gmail.com')
+    format = 'SIMPLE_CSV')
 
 gbif_download
 
@@ -71,6 +70,8 @@ data <-
 
 # save data ---------------------------------------------------------------
 
+# csv
+
 data %>%
   write_csv(
     paste0(
@@ -78,9 +79,23 @@ data %>%
       my_species,
       '_gbif_raw.csv'))
 
+read_csv(
+  paste0(
+    'data/raw/',
+    my_species,
+    '_gbif_raw.csv'))
+
+# rds
+
 data %>%
   write_rds(
     paste0(
       'data/raw/',
       my_species,
       '_gbif_raw.rds'))
+
+read_rds(
+  paste0(
+    'data/raw/',
+    my_species,
+    '_gbif_raw.rds'))

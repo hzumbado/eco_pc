@@ -50,7 +50,6 @@ list.files(
     'bathymetry') %>%
   list2env(.GlobalEnv)
 
-
 # colores ----------------------------------------------------------------
 
 cols4all::c4a_gui()
@@ -177,7 +176,7 @@ startswithB <-
   filter(
     str_detect(name, '^B'))
 
-World%>%
+World %>%
   tm_shape() +
   tm_polygons('gray70') +
   tm_shape(startswithB) +
@@ -185,14 +184,14 @@ World%>%
 
 # rivers------------------------------------------------------------------
 
-world %>%
+World %>%
   tm_shape() +
   tm_borders() +
   tm_shape(rivers) +
   tm_lines(
     col = 'darkblue')
 
-world %>%
+World %>%
   tm_shape() +
   tm_borders() +
   tm_shape(rivers) +
@@ -201,7 +200,7 @@ world %>%
 
 # lakes -------------------------------------------------------------------
 
-world %>%
+World %>%
   tm_shape() +
   tm_borders() +
   tm_shape(lakes) +
@@ -216,7 +215,6 @@ World %>%
   tm_shape(lakes) +
   tm_polygons(
     fill = 'lightblue')
-
 
 # Namibia -----------------------------------------------------------------
 
@@ -342,353 +340,109 @@ World %>%
     'name',
     size = 0.75) +
   tm_borders()
+
 # plots -------------------------------------------------------------------
 
-bathy %>%
-tm
+bathymetry %>%
+  tm_shape() +
+  tm_raster()
 
-plot(bathy)
-plot(ncdf$pr)
-plot(elevation)
-plot(population)
+elevation %>%
+  tm_shape() +
+  tm_raster(
+    col.scale =
+      tm_scale_continuous(
+        values = terrain.colors(7)),
+    col.legend =
+      tm_legend(title = "Elevation (masl)"))
 
-plot(
-  elevation,
-  col = cm.colors(
-    100,
-    rev = T))
-
-plot(
-  population,
-  add = TRUE,
-  alpha = 0.6,
-  legend = FALSE)
-
-
-# check layers ------------------------------------------------------------
-
-elevation
-population  # notice different dimensions, resolution, extent
-countries
-
-ext(elevation)  # spatial extent (min and max coordinates)
-crs(elevation, proj = TRUE)  # crs in 'proj' format
-res(elevation)  # spatial resolution (pixel size)
-
-ext(countries)
-crs(countries, proj = TRUE)
-head(countries)
-
-
-countries$startswithB <-
-  startsWith(as.character(countries$name), "B")
-
-plot(
-  countries,
-  "startswithB",
-  lwd = 0.1)
-
-
-# colours -----------------------------------------------------------------
-
-colours()  # you can search "R colours" online for images
-
-plot(
-  countries,
-  ext = my_window,
-  col = "wheat",
-  border = "wheat4",
-  background = "lightblue")
-
-plot(
-  rivers,
-  col = "royalblue",
-  lwd = 2,
-  add = TRUE)
-
-plot(
-  cities,
-  pch = 20,
-  col = "darkred",
-  cex = 0.7,
-  add = TRUE)
-
-text(
-  subset(
-    cities,
-    cities$CAPITAL == "Y"),
-  "NAME",
-  cex = 0.7,
-  col = "darkgreen",
-  halo = TRUE)
-
-
-# palette rasters ---------------------------------------------------------
-
-plot(elevation, col = hcl.colors(100))
-plot(elevation, col = hcl.colors(100, palette = "inferno"))
-plot(elevation, col = hcl.colors(100, palette = "spectral"))
-plot(elevation, col = hcl.colors(100, palette = "geyser"))
-plot(elevation, col = rainbow(100))
-plot(elevation, col = terrain.colors(100))
-plot(elevation, col = topo.colors(100))
-plot(elevation, col = cm.colors(100))
-plot(elevation, col = heat.colors(100))
-
-plot(elevation, col = topo.colors(100, rev = TRUE))
-plot(elevation, col = hcl.colors(100, palette = "spectral", rev = TRUE))
-
-plot(
-  species_points,
-  "species",
-  col = hcl.colors(length(unique(species_points$species))))
-
-plot(
-  species_points,
-  "country",
-  col = rainbow(length(unique(species_points$country))))
-
-plot(countries, "pop2005")
-plot(
-  countries,
-  "pop2005",
-  col = hcl.colors(100, palette = "geyser"))
-
-
-# legend breaks -----------------------------------------------------------
-
-pretty_breaks <-
-  pretty(countries$pop2005, n = 10)
-
-plot(
-  countries,
-  "pop2005",
-  col = hcl.colors(
-    100,
-    palette = "geyser"),
-  breaks = pretty_breaks)
-
-breaks <-
-  seq(
-    0,
-    max(countries$pop2005),
-    by = 100000000)
-
-breaks
-
-plot(
-  countries,
-  "pop2005",
-  col = hcl.colors(
-    100,
-    palette = "geyser"),
-  breaks = breaks)
-
-plot(population)
-
-plot(
-  population,
-  breaks = quantile(
-    values(population),
-    na.rm = TRUE))
-
-plot(
-  countries,
-  "pop2005",
-  breaks =
-    quantile(countries$pop2005))
-
-plot(
-  countries,
-  "pop2005",
-  breaks = quantile(
-    countries$pop2005,
-    probs = seq(0, 1, 0.1)))
-
-plot(
-  countries,
-  "pop2005",
-  breaks = quantile(
-    countries$pop2005,
-    probs = seq(0, 1, 0.1)),
-  col = hcl.colors(length(countries),
-                   palette = "geyser"),
-  main = "World population by country\nin 2005")
+population %>%
+  tm_shape() +
+  tm_raster(
+    col.scale =
+      tm_scale(values = "geyser", midpoint = NA),
+    tm_scale_intervals(style = "log10_pretty"),
+    col.legend =
+      tm_legend(title = "Elevation (masl)"))
 
 # north arrow, scale, inset -----------------------------------------------
 
-plot(
-  countries,
-  border = "grey",
-  ext = my_window)
+africa_map <-
+  World %>%
+  tm_shape(bb = extent) +
+  tm_graticules(lines = FALSE) +
+  tm_polygons('gray') +
+  tm_scale_bar(
+    breaks = c(0, 500, 1000)) +
+  tm_compass(
+    # position = c('bottom', 'left'),
+    position = c(0.005, 0.98),
+    type = "4star",
+    size = 2) +
+  tm_layout(
+    bg.color = 'lightblue')
 
-plot(species_points, add = TRUE)
+extent <-
+  st_bbox(World) %>%
+  st
 
-north(col = "darkblue", font = 2, lwd = 5)
+bb <-
+  sf::st_bbox(c(
+    xmin = -180,
+    xmax = 180,
+    ymin = -90,
+    ymax = 90),
+    crs = 4326)
 
-sbar(1000)  # default
-
-sbar(xy = c(-15, -25), d = 1000, type = "bar", below = "km")
-
-inset(
-  countries,
-  loc = "topleft",
-  border = "grey",
-  box = ext(my_window),
-  pbox = list(col = "darkred", lwd = 2))
-
-terra::perim(rivers)
-st_length(st_as_sf(rivers))
-
-# 'mapmisc'
-insetMap(
-  crs(countries),
-  pos = "topleft",
-  map = "osm",
-  border = NA)
-
-# change the zoom level of theinset map:
-insetMap(
-  crs(countries),
-  pos = "topleft",
-  map = "osm",
-  border = NA,
-  zoom = 2)
-
-# add the inset map at a specific position:
-insetMap(
-  crs(countries),
-  pos = c(-40, 20),
-  map = "osm",
-  border = NA)
-
-
-# bubble maps -------------------------------------------------------------
-
-cities$is_capital <-
-  ifelse(cities$CAPITAL == "Y", 1, 0)
-
-st_as_sf(cities) |>
-  mutate(cap = if_else(CAPITAL == 'Y', 1, 0), .before = 4)
-
-plot(countries, border = "grey")
-plot(
-  cities,
-  pch = 1,
-  col = "darkblue",
-  cex = cities$is_capital + 0.5,
-  add = TRUE)
-
-# pdf map -----------------------------------------------------------------
-
-pdf(
-  "outputs2/countries_map.pdf",
-  width = 7,
-  height = 4)
-
-plot(countries,
-     "region",
-     main = "Map of the world",
-     col = hcl.colors(6, "geyser"))
-
-dev.off()
+africa_map +
+  tm_inset(
+    bb,
+    height = 5,
+    width = 5,
+    position = c("left", "bottom"))
 
 # CRS ---------------------------------------------------------------------
 
-world %>%
+World %>%
   tm_shape() +
   tm_borders() +
   tm_shape(rivers_europe) +
   tm_lines(col = 'blue')
 
-st_crs(world)
+st_crs(World)
 st_crs(rivers_europe)
-
 
 # CRS raster --------------------------------------------------------------
 
-elev_laea <-
-  project(elevation, countries_laea)
+World %>%
+  tm_shape() +
+  tm_borders() +
+  tm_shape(rivers_europe) +
+  tm_lines('darkblue')
 
-plot(elev_laea)
+World %>%
+  tm_shape() +
+  tm_borders() +
+  tm_shape(
+    rivers_europe,
+    is.main = TRUE) +
+  tm_lines('darkblue')
 
-elev_Namibia <-
-  elevation_30s(
-    country = "Namibia",
-    path = "outputs2/elevation",
-    mask = FALSE)
+rivers_europe %>%
+  tm_shape() +
+  tm_lines('darkblue') +
+  tm_shape(World) +
+  tm_borders()
 
-plot(elev_Namibia)
-crs(elev_Namibia, proj = TRUE)  # longlat WGS84
+# transformacion
 
-elev_Namibia
-elev_Namibia[]  # show the values of the raster pixels
-values(elev_Namibia)  # same
+world_laea <-
+  st_transform(
+    World,
+    crs = st_crs(rivers_europe))
 
-elev_Namibia_laea <-
-  terra::project(
-    elev_Namibia,
-    countries_laea,
-    method = "bilinear")
-
-plot(elev_Namibia_laea)
-plot(countries_laea, add = TRUE)
-
-countries_moll <-
-  project(countries, "+proj=moll")
-
-plot(countries_moll)
-
-countries_eur <-
-  subset(
-    countries,
-    countries$region == 150
-    & countries$name != "Russia")
-
-countries_eur_laea <- project(countries_eur, countries_laea)
-
-plot(
-  countries_eur_laea,
-  col = "burlywood",
-  border = "burlywood4")
-
-# *** HOMEWORK ASSIGNMENT ***
-
-# check available country names and ISO codes:
- names(geodata::country_codes())
-
- geodata::country_codes()[ , c("NAME", "ISO3")]
-
- geodata::country_codes() |>
-   as_tibble
-
-
-# ggplot ------------------------------------------------------------------
-
-
-crs(species_points) <- crs(countries)
-
-world  %>%
-  ggplot() +
-  geom_sf(
-    aes(fill = continent),
-    lwd = 0.2) +
-  geom_sf(
-    data = st_as_sf(species_coords),
-    colour = "darkgreen",
-    size = 0.5) +
-  geom_sf(
-    data = st_as_sf(rivers_Eur),
-    color = "blue",
-    lwd = 0.6) +
-  geom_sf(
-    data =
-      st_as_sf(cities),
-    colour = "darkred",
-    size = 0.5,
-    shape = 23) +
-  coord_sf(crs = "+proj=moll")
-
-
-st_as_sf(cities) %>%
-  mutate(cap = if_else(CAPITAL == 'Y', 1, 0), .before = 4)
+world_laea %>%
+  tm_shape() +
+  tm_borders() +
+  tm_shape(rivers_europe) +
+  tm_lines('darkblue')
