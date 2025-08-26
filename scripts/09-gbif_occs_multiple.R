@@ -11,19 +11,22 @@ library(tidyverse)
 
 # lista de especies -------------------------------------------------------
 
-species_list <-
-  "https://raw.githubusercontent.com/hzumbado/eco_pc/refs/heads/main/data/raw/craugastor_fitzingeri_group.csv"
-
-# species_list %>%
+# species_list <-
+#   "https://raw.githubusercontent.com/hzumbado/eco_pc/refs/heads/main/data/raw/craugastor_fitzingeri_group.csv"
+#
+# long_checklist <-
+#   read_csv(species_list)
+#
+# long_checklist %>%
 #   write_csv('data/raw/craugastor_fitzingeri_group.csv')
 
-long_checklist <-
-  read_csv(species_list)
+species_list <-
+  read_csv('data/raw/craugastor_fitzingeri_group.csv')
 
 # match the names
 
 gbif_taxon_keys <-
-  long_checklist %>%
+  species_list %>%
   name_backbone_checklist() %>% # match to backbone
   filter(!matchType == "NONE") %>% # get matched names
   pull(usageKey)

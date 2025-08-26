@@ -12,7 +12,7 @@ library(tidyverse)
 # data --------------------------------------------------------------------
 
 species <- 'Cephalopterus glabricollis'
-my_species <- 'Cephalopterus_glabricollis'
+my_species <- 'cephalopterus_glabricollis'
 
 key <-
   name_backbone(species) %>%

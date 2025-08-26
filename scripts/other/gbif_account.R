@@ -3,7 +3,7 @@
 
 # setup -------------------------------------------------------------------
 
-install.packages("usethis")
+#install.packages("usethis")
 usethis::edit_r_environ()
 
 # copiar siguiente codigo en r environment

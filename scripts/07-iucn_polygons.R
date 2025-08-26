@@ -52,8 +52,11 @@ list.files(
         janitor::clean_names() %>%
         rename(species = 'sci_name')) %>%
   set_names(
+    'c_cuaquero',
     'c_fitzingeri',
-    'c_melanostictus') %>%
+    'c_melanostictus',
+    'c_phasma',
+    'c_talamancae') %>%
   list2env(.GlobalEnv)
 
 # chequear todos los poligonos
@@ -92,20 +95,22 @@ c_fitzingeri_area <-
   units::set_units(km^2)
 
 # leer grupo --------------------------------------------------------------
-
 group_polygon <-
   list.files(
-  'shapefiles',
-  pattern = '^crau.*\\.gpkg$',
-  full.names = TRUE) %>%
+    'shapefiles',
+    pattern = '^crau.*\\.gpkg$',
+    full.names = TRUE) %>%
   map(~.x %>%
         read_sf() %>%
         st_make_valid() %>%
-        janitor::clean_names()%>%
+        janitor::clean_names() %>%
         rename(species = 'sci_name')) %>%
   set_names(
+    'c_cuaquero',
     'c_fitzingeri',
-    'c_melanostictus') %>%
+    'c_melanostictus',
+    'c_phasma',
+    'c_talamancae') %>%
   bind_rows()
 
 # calcular area -----------------------------------------------------------
@@ -120,7 +125,6 @@ group_area <-
     .before = presence) %>%
   select(species, area) %>%
   st_drop_geometry()
-
 
 # mapa --------------------------------------------------------------------
 
