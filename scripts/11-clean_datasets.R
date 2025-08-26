@@ -1,4 +1,5 @@
-# Hector Zumbado
+# Ecologia de poblaciones
+# Profesor Hector Zumbado Ulate
 # limpieza de datos GBIF resumida
 
 # setup -------------------------------------------------------------------

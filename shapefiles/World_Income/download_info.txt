@@ -1,3 +1,0 @@
-http://datatopics.worldbank.org/world-development-indicators/the-world-by-income-and-region.html
-downloaded 31 Mar 2020
-filtered in R to include only year 2020
