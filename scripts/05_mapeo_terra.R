@@ -330,7 +330,7 @@ colours()  # you can search 'R colours' online for images
 plot(
   world,
   ext = my_window,
-  col = 'wheat',
+  col = 'tomato3',
   border = 'wheat4',
   background = 'lightblue')
 

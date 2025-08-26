@@ -382,9 +382,6 @@ africa_map <-
   tm_layout(
     bg.color = 'lightblue')
 
-extent <-
-  st_bbox(World) %>%
-  st
 
 bb <-
   sf::st_bbox(c(
